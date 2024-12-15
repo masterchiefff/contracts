@@ -1,0 +1,65 @@
+{
+	"compiler": {
+		"version": "0.8.26+commit.8a97fa7a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
+					}
+				],
+				"name": "isENSRegistered",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/ensRegisty.sol": "ENSVerifier"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/ensRegisty.sol": {
+			"keccak256": "0xf086cd56ddfc7304ddab1f044a251e0b2aabcf6de89fcefc7480c39b6f792c8a",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f1e388a54f033ae2c3137705225897b140dc6712181384898a927bc95d130c74",
+				"dweb:/ipfs/QmXrabnYb5Jp8EYs7h5DS2txDeJ4WsTKfm73Em1VyjgN7j"
+			]
+		}
+	},
+	"version": 1
+}

@@ -1,0 +1,157 @@
+{
+	"compiler": {
+		"version": "0.8.26+commit.8a97fa7a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "registrarAddress",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidLabel",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "label",
+						"type": "string"
+					}
+				],
+				"name": "LabelContainsInvalidCharacters",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "label",
+						"type": "string"
+					}
+				],
+				"name": "LabelTooLong",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "baseRegistrar",
+				"outputs": [
+					{
+						"internalType": "contract IBaseRegistrar",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "label",
+						"type": "string"
+					}
+				],
+				"name": "getBasenameOwner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "label",
+						"type": "string"
+					}
+				],
+				"name": "stringToBytes32",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"getBasenameOwner(string)": {
+					"params": {
+						"label": "The label part of the name (e.g., \"techwithmide\" for \"techwithmide.base.eth\")"
+					},
+					"returns": {
+						"_0": "The address of the current owner of the name"
+					}
+				},
+				"stringToBytes32(string)": {
+					"details": "Validates the label before converting to prevent common mistakes",
+					"params": {
+						"label": "The label part of the name (e.g., \"techwithmide\" for \"techwithmide.base.eth\")"
+					}
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"getBasenameOwner(string)": {
+					"notice": "Get the owner of a basename"
+				},
+				"stringToBytes32(string)": {
+					"notice": "Converts a basename label to its tokenId"
+				}
+			},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/ensRegisty.sol": "BasenameHelper"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/ensRegisty.sol": {
+			"keccak256": "0xe054cca2e3b5945695241a91597925fcbcb45f502d850489ed35ec9b16fb78dd",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://03ebe869c251a77acaf090a421b8a30149619e6e5d317c6b8d8525a0ef2e0fda",
+				"dweb:/ipfs/QmSThYcWP9crJ5wq1hFDpNBL2Lg38YCiQYjB5Sfhki9iUB"
+			]
+		}
+	},
+	"version": 1
+}
