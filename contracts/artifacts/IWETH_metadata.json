@@ -1,0 +1,66 @@
+{
+	"compiler": {
+		"version": "0.8.28+commit.7893614a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "deposit",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/p2p-lending.sol": "IWETH"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/p2p-lending.sol": {
+			"keccak256": "0x26721a35c1106a4c3939ebd5c1d8213fe4fd07e310bdbe026e1448be7deb054c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://40ccbedc1c26d051931be95be95566cb7b8dc88b56d314490d16d765db451d6f",
+				"dweb:/ipfs/QmcMGao9yQARsKzH4JZggvFcpUjue8k7K3ngx8PQhaxef9"
+			]
+		}
+	},
+	"version": 1
+}

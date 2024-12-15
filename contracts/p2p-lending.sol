@@ -1,85 +1,164 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.27;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; 
 
-contract PesabitsCollateralManager is ReentrancyGuard {
+contract P2PLending {
+    uint public constant MIN_LOAN_AMOUNT = 0.1 ether; 
+    uint public constant MAX_LOAN_AMOUNT = 10 ether; 
+    uint public constant MIN_INTEREST_RATE = 1; 
+    uint public constant MAX_INTEREST_RATE = 5; 
 
-    address public owner;
-    address public escrowWallet;
-
-    enum CollateralType { USDT, USDC, BTC }
-
-    mapping(CollateralType => address) public approvedTokens;
-
-    event CollateralDeposited(address indexed borrower, CollateralType tokenType, uint256 amount);
-    event CollateralWithdrawn(address indexed borrower, CollateralType tokenType, uint256 amount);
-
-    struct Collateral {
-        uint256 amount;
-        CollateralType tokenType;
+    struct Loan {
+        uint amount; 
+        uint interest; 
+        uint duration;
+        uint repaymentAmount; 
+        uint fundingDeadline; 
+        address borrower; 
+        address payable lender; 
+        bool active; 
+        bool repaid;
+        address collateralToken;
+        uint collateralAmount; 
     }
 
-    mapping(address => Collateral) public borrowerCollateral;
+    mapping(uint => Loan) public loans;
+    uint public loanCount;
 
-    error InvalidEscrowWallet();
-    error InvalidTokenAddress();
-    error NoCollateralToWithdraw();
-    error NotEnoughCollateral();
-    error InsufficientEscrowBalance();
+    event LoanCreated(
+        uint loanId,
+        uint amount,
+        uint interest,
+        uint duration,
+        uint fundingDeadline,
+        address borrower,
+        address lender,
+        address collateralToken,
+        uint collateralAmount
+    );
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this function");
+    event LoanFunded(uint loanId, address funder, uint amount);
+    event LoanRepaid(uint loanId, uint amount);
+    
+    modifier onlyActiveLoan(uint _loanId) {
+        require(loans[_loanId].active, "Loan is not active");
         _;
     }
 
-    constructor(address _escrowWallet) {
-        require(_escrowWallet != address(0), "Invalid escrow wallet");
-        owner = msg.sender;
-        escrowWallet = _escrowWallet;
+    modifier onlyBorrower(uint _loanId) {
+        require(msg.sender == loans[_loanId].borrower, "Only the borrower can perform this action");
+        _;
     }
 
-    function setApprovedToken(CollateralType _tokenType, address _tokenAddress) external onlyOwner {
-        require(_tokenAddress != address(0), "Invalid token address");
-        approvedTokens[_tokenType] = _tokenAddress;
+    function createLoan(
+        uint _amount,
+        uint _interest,
+        uint _duration,
+        address _collateralToken,
+        uint _collateralAmount
+    ) external payable {
+        require(_amount >= MIN_LOAN_AMOUNT && _amount <= MAX_LOAN_AMOUNT, "Loan amount must be within limits");
+        require(_interest >= MIN_INTEREST_RATE && _interest <= MAX_INTEREST_RATE, "Interest rate must be within limits");
+        require(_duration > 0, "Loan duration must be greater than 0");
+
+        IERC20(_collateralToken).transferFrom(msg.sender, address(this), _collateralAmount);
+
+        uint _repaymentAmount = _amount + (_amount * _interest) / 100;
+        uint _fundingDeadline = block.timestamp + (1 days);
+        
+        Loan storage loan = loans[loanCount++];
+        
+        loan.amount = _amount;
+        loan.interest = _interest;
+        loan.duration = _duration;
+        loan.repaymentAmount = _repaymentAmount;
+        loan.fundingDeadline = _fundingDeadline;
+        loan.borrower = msg.sender;
+        loan.lender = payable(address(0));
+        loan.active = true;
+        loan.repaid = false;
+        
+        // Store collateral details
+        loan.collateralToken = _collateralToken;
+        loan.collateralAmount = _collateralAmount;
+
+        emit LoanCreated(
+            loanCount - 1,
+            _amount,
+            _interest,
+            _duration,
+            _fundingDeadline,
+            msg.sender,
+            address(0),
+            _collateralToken,
+            _collateralAmount
+        );
     }
 
-    function depositCollateral(CollateralType _tokenType, uint256 _amount) external nonReentrant {
-        require(_amount > 0, "Collateral amount must be greater than zero");
+    function fundLoan(uint _loanId) external payable onlyActiveLoan(_loanId) {
+        Loan storage loan = loans[_loanId];
+        
+        require(msg.sender != loan.borrower, "Borrower cannot fund their own loan");
+        
+         // Ensure that the funding amount matches the required loan amount
+         require(loan.amount == msg.value, "Incorrect funding amount");
+         require(block.timestamp <= loan.fundingDeadline, "Loan funding deadline has passed");
 
-        address tokenAddress = approvedTokens[_tokenType];
-        require(tokenAddress != address(0), "Invalid collateral token");
+         payable(address(this)).transfer(msg.value);
+         loan.lender = payable(msg.sender);
+         loan.active = false;
 
-        // Transfer tokens from the borrower to the escrow wallet
-        bool success = IERC20(tokenAddress).transferFrom(msg.sender, escrowWallet, _amount);
-        require(success, "Token transfer failed");
+         emit LoanFunded(_loanId, msg.sender, msg.value);
+     }
 
-        // Update the borrower's collateral
-        borrowerCollateral[msg.sender] = Collateral({
-            amount: _amount,
-            tokenType: _tokenType
-        });
+     function repayLoan(uint _loanId) external payable onlyActiveLoan(_loanId) onlyBorrower(_loanId) {
+         require(msg.value == loans[_loanId].repaymentAmount, "Incorrect repayment amount");
 
-        emit CollateralDeposited(msg.sender, _tokenType, _amount);
-    }
+         loans[_loanId].lender.transfer(msg.value);
+         loans[_loanId].repaid = true;
+         loans[_loanId].active = false;
 
-    function withdrawCollateral() external nonReentrant {
-        Collateral storage collateralData = borrowerCollateral[msg.sender];
-        require(collateralData.amount > 0, "No collateral to withdraw");
+         emit LoanRepaid(_loanId, msg.value);
+     }
 
-        address tokenAddress = approvedTokens[collateralData.tokenType];
-        require(tokenAddress != address(0), "Invalid collateral token");
+     function withdrawCollateral(uint _loanId) external onlyBorrower(_loanId) {
+         Loan storage loan = loans[_loanId];
+         require(loan.repaid || block.timestamp > (loan.fundingDeadline + loan.duration), "Cannot withdraw collateral yet");
 
-        uint256 amount = collateralData.amount;
-        collateralData.amount = 0;
+         IERC20(loan.collateralToken).transfer(msg.sender, loan.collateralAmount);
+     }
 
-        uint256 escrowBalance = IERC20(tokenAddress).balanceOf(escrowWallet);
-        require(escrowBalance >= amount, "Escrow wallet has insufficient balance");
-
-        bool success = IERC20(tokenAddress).transferFrom(escrowWallet, msg.sender, amount);
-        require(success, "Token transfer failed");
-
-        emit CollateralWithdrawn(msg.sender, collateralData.tokenType, amount);
-    }
+     function getLoanInfo(uint _loanId)
+         external
+         view
+         returns (
+             uint amount,
+             uint interest,
+             uint duration,
+             uint repaymentAmount,
+             uint fundingDeadline,
+             address borrower,
+             address lender,
+             bool active,
+             bool repaid,
+             address collateralToken,
+             uint collateralAmount
+         )
+     {
+         Loan storage loan = loans[_loanId];
+         return (
+             loan.amount,
+             loan.interest,
+             loan.duration,
+             loan.repaymentAmount,
+             loan.fundingDeadline,
+             loan.borrower,
+             loan.lender,
+             loan.active,
+             loan.repaid,
+             loan.collateralToken,
+             loan.collateralAmount
+         );
+     }
 }

@@ -49,10 +49,8 @@
 		},
 		"gasEstimates": null,
 		"methodIdentifiers": {
-			"approve(address,uint256)": "095ea7b3",
-			"balanceOf(address)": "70a08231",
-			"transfer(address,uint256)": "a9059cbb",
-			"transferFrom(address,address,uint256)": "23b872dd"
+			"calculateCollateralAmount(address,uint256)": "034cc760",
+			"getLoanInfo(uint256)": "0714012c"
 		}
 	},
 	"abi": [
@@ -60,35 +58,16 @@
 			"inputs": [
 				{
 					"internalType": "address",
-					"name": "spender",
+					"name": "_collateralToken",
 					"type": "address"
 				},
 				{
 					"internalType": "uint256",
-					"name": "amount",
+					"name": "_loanAmount",
 					"type": "uint256"
 				}
 			],
-			"name": "approve",
-			"outputs": [
-				{
-					"internalType": "bool",
-					"name": "",
-					"type": "bool"
-				}
-			],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "account",
-					"type": "address"
-				}
-			],
-			"name": "balanceOf",
+			"name": "calculateCollateralAmount",
 			"outputs": [
 				{
 					"internalType": "uint256",
@@ -102,54 +81,70 @@
 		{
 			"inputs": [
 				{
-					"internalType": "address",
-					"name": "recipient",
-					"type": "address"
-				},
+					"internalType": "uint256",
+					"name": "_loanId",
+					"type": "uint256"
+				}
+			],
+			"name": "getLoanInfo",
+			"outputs": [
 				{
 					"internalType": "uint256",
 					"name": "amount",
 					"type": "uint256"
-				}
-			],
-			"name": "transfer",
-			"outputs": [
+				},
 				{
-					"internalType": "bool",
-					"name": "",
-					"type": "bool"
-				}
-			],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
+					"internalType": "uint256",
+					"name": "interest",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "duration",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "repaymentAmount",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "fundingDeadline",
+					"type": "uint256"
+				},
 				{
 					"internalType": "address",
-					"name": "sender",
+					"name": "borrower",
 					"type": "address"
 				},
 				{
 					"internalType": "address",
-					"name": "recipient",
+					"name": "lender",
+					"type": "address"
+				},
+				{
+					"internalType": "bool",
+					"name": "active",
+					"type": "bool"
+				},
+				{
+					"internalType": "bool",
+					"name": "repaid",
+					"type": "bool"
+				},
+				{
+					"internalType": "address",
+					"name": "collateralToken",
 					"type": "address"
 				},
 				{
 					"internalType": "uint256",
-					"name": "amount",
+					"name": "collateralAmount",
 					"type": "uint256"
 				}
 			],
-			"name": "transferFrom",
-			"outputs": [
-				{
-					"internalType": "bool",
-					"name": "",
-					"type": "bool"
-				}
-			],
-			"stateMutability": "nonpayable",
+			"stateMutability": "view",
 			"type": "function"
 		}
 	]
